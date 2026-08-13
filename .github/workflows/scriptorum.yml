@@ -1,0 +1,41 @@
+name: Scriptorum
+
+on:
+  push:
+    paths:
+      - "questions/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scriptorum:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run Scriptorum
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_BASE_URL: ${{ secrets.LLM_BASE_URL }}
+          LLM_MODEL: ${{ secrets.LLM_MODEL }}
+        run: python scripts/ask.py
+
+      - name: Commit answers
+        run: |
+          git config user.name "Scriptorum"
+          git config user.email "scriptorum@users.noreply.github.com"
+          git add answers/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore(answers): new responses"
+            git push
+          fi
