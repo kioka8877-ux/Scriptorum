@@ -14,6 +14,7 @@ import json
 import os
 import re
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib import request, error
@@ -81,15 +82,27 @@ def call_llm(question: str) -> str:
         method="POST",
     )
 
-    try:
-        with request.urlopen(req, timeout=300) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-    except error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
-        log(f"ERREUR API ({e.code}) : {body[:500]}")
-        sys.exit(1)
-    except error.URLError as e:
-        log(f"ERREUR réseau : {e}")
+    last_err = None
+    for attempt in range(4):
+        try:
+            with request.urlopen(req, timeout=300) as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+            break
+        except error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace")
+            if e.code == 429:
+                wait = 10 * (attempt + 1)
+                log(f"Rate limit (429) — nouvel essai dans {wait}s...")
+                time.sleep(wait)
+                last_err = f"429: {body[:200]}"
+                continue
+            log(f"ERREUR API ({e.code}) : {body[:500]}")
+            sys.exit(1)
+        except error.URLError as e:
+            log(f"ERREUR réseau : {e}")
+            sys.exit(1)
+    else:
+        log(f"ERREUR : rate limit persisté — {last_err}")
         sys.exit(1)
 
     try:
@@ -151,6 +164,12 @@ def main() -> None:
     answered = 0
     for path in questions:
         meta = read_question(path)
+
+        answer_md = ANSWERS_DIR / f"{meta['name']}.md"
+        if answer_md.exists():
+            log(f"Skippé (déjà répondu) : {meta['name']}")
+            continue
+
         log(f"Question : {meta['name']} — {meta['question'][:60]}...")
         answer = call_llm(meta["question"])
         write_answer(meta, answer)
