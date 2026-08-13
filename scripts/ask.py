@@ -23,9 +23,9 @@ QUESTIONS_DIR = ROOT / "questions"
 ANSWERS_DIR = ROOT / "answers"
 QUESTION_PREFIX = "question-"
 
-BASE_URL = os.environ.get("LLM_BASE_URL", "https://integrate.api.nvidia.com/v1").rstrip("/")
-MODEL = os.environ.get("LLM_MODEL", "z-ai/glm-5.2")
-API_KEY = os.environ.get("LLM_API_KEY")
+BASE_URL = (os.environ.get("LLM_BASE_URL") or "https://integrate.api.nvidia.com/v1").rstrip("/")
+MODEL = os.environ.get("LLM_MODEL") or "z-ai/glm-5.2"
+API_KEY = os.environ.get("LLM_API_KEY") or ""
 
 
 def log(msg: str) -> None:
