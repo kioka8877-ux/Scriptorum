@@ -62,11 +62,71 @@ def read_question(path: Path) -> dict:
     }
 
 
+def extract_images(question: str) -> tuple[str, list[str]]:
+    """Extrait les URLs d'images depuis la question.
+
+    Convention : chaque ligne commençant par 'IMG:' contient une URL d'image.
+    Ces URLs sont retirées du texte de la question et renvoyées séparément
+    pour construire un payload multimodal (vision).
+    """
+    lines = question.splitlines()
+    images = []
+    kept = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("IMG:"):
+            url = stripped[len("IMG:"):].strip()
+            if url:
+                images.append(url)
+        else:
+            kept.append(line)
+    return "\n".join(kept).strip(), images
+
+
+def extract_videos(question: str) -> tuple[str, list[str]]:
+    """Extrait les URLs vidéo depuis la question.
+
+    Convention : chaque ligne commençant par 'VIDEO:' contient une URL vidéo.
+    Ces URLs sont retirées du texte de la question et renvoyées séparément
+    pour construire un payload multimodal (vision vidéo).
+    """
+    lines = question.splitlines()
+    videos = []
+    kept = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("VIDEO:"):
+            url = stripped[len("VIDEO:"):].strip()
+            if url:
+                videos.append(url)
+        else:
+            kept.append(line)
+    return "\n".join(kept).strip(), videos
+
+
 def call_llm(question: str) -> str:
     """Appelle l'API LLM (format compatible OpenAI) et retourne la réponse."""
     if not API_KEY:
         log("ERREUR : LLM_API_KEY manquante.")
         sys.exit(1)
+
+    text, videos = extract_videos(question)
+    text, images = extract_images(text)
+
+    if videos or images:
+        user_content = [{"type": "text", "text": text}]
+        for url in videos:
+            user_content.append({
+                "type": "video_url",
+                "video_url": {"url": url},
+            })
+        for url in images:
+            user_content.append({
+                "type": "image_url",
+                "image_url": {"url": url, "detail": "auto"},
+            })
+    else:
+        user_content = text
 
     payload = json.dumps({
         "model": MODEL,
@@ -75,7 +135,7 @@ def call_llm(question: str) -> str:
                 "Tu es Scriptorum, scribe de l'Imperium de l'Homme. "
                 "Tu réponds de manière précise, structurée et utile."
             )},
-            {"role": "user", "content": question},
+            {"role": "user", "content": user_content},
         ],
         "temperature": 0.7,
     }).encode("utf-8")
