@@ -83,12 +83,20 @@ Les 2 analyses sont terminées. La doctrine visuelle est définie (section 0). I
 - `MONDES_FORGES/CLIPPING/PROFILES/logo/manifest.json` : ajouter `sub_mode: "meme"`.
 - `MONDES_FORGES/CLIPPING/CONTRACTS/production_pack_schema_logo.json` : étendre l'enum `sub_mode`.
 - Nouveau guide : `MONDES_FORGES/CLIPPING/GUIDE_UTILISATION/04_MODE_MEME.md` (modèle : `01_MODE_LOGO_INFORMATIF.md`) — intégrer les 6 couches + règles d'assemblage du rapport 2.
-- Étendre les frégates : `F00_CAPTEURS/CODEBASE/capteurs.py` (entrée durée opérateur), `F02_TYRANT_CAMP/CODEBASE/anglesmith.py`, `F04_COPYWRITER/CODEBASE/copywriter.py`, `F05_PACKAGER/CODEBASE/packager.py`.
+- Étendre les frégates : `F00_CAPTEURS/CODEBASE/capteurs.py` (scan YouTube virality par mot-clé SANS téléchargement), `F02_TYRANT_CAMP/CODEBASE/anglesmith.py`, `F04_COPYWRITER/CODEBASE/copywriter.py`, `F05_PACKAGER/CODEBASE/packager.py` (pack = textes + emotion + durée + règles de montage). **F01 non utilisé en mode meme.**
 
-### Rappels de conception (décidés avec le user)
-- Mode meme : PERTURABO = **texte only**. Chaque angle = 3 textes : `title` (haut), `tweet_text` (max 3 lignes), `reaction_text` (milieu, max 4 mots). + `emotion` (ajustable) + durée fourchette (demandée à l'opérateur F00/F01). **Pas** de timecodes, **pas** d'URL de meme.
-- OMNIS_WATCH/Lacrimae = rendu vidéo + choix des vidéos meme. PERTURABO livre la directive émotion.
-- Workflow meme F00 : scan par mot-clé → infos virales à potentiel humour (audience US) → skip analyse vidéo source → opérateur injecte humour → axes → 5 axes validés.
+### Rappels de conception (décidés avec le user) — WORKFLOW MODE MEME RÉVISÉ ⭐
+- **Pack = aspects textuels + référence aux règles de montage.** Le pack référence le guide `04_MODE_MEME.md` (réponse user : "Référence au guide 04_MODE_MEME.md" — PAS de bloc JSON dupliqué). OMNIS_WATCH charge le guide pour le rendu.
+- **Workflow** :
+  1. Opérateur fournit le **mot-clé** → **F00** scanne la viralité sur **TOUTES les sources** (YouTube + Google Trends + RSS + Reddit + Twitter + toute source disant ce qui est viral US et ce qui marchera en Shorts), SANS télécharger de clip.
+  2. **F02** sort **5 angles** → chacun avec une **émotion** (différente entre angles, ou identique si nécessaire — **règle anti-spam**, à fixer).
+  3. **F04** génère : **fake tweet**, **titre en haut** (si nécessaire), **texte d'émotion**.
+  4. **F05** assemble le **pack dans EXPORT** : textes + emotion + durée fourchette + référence guide montage.
+  5. **F01 et F03 sont SKIP** : pas de timecodes/segments. F03 (sélection segments vidéos longues) dépendait de F01 (assets+transcripts) — sans clip fourni, il n'a rien à sélectionner. Son rôle est remplacé par les règles de montage génériques du guide.
+  6. **OMNIS_WATCH** récupère le pack dans EXPORT (via demonwatch) pour rendre la vidéo et sortir les vues.
+- **Clé premium** : les **3 clés** disponibles (Kimi K3/Baseten, OpenRouter, NVIDIA nvapi) — utiliser selon disponibilité. Kimi K3/Baseten = référence testée et fonctionnelle.
+- Chaque angle = 3 textes : `title` (haut), `tweet_text` (max 3 lignes), `reaction_text` (milieu, max 4 mots) + `emotion` (ajustable) + durée fourchette (demandée à l'opérateur F00/F01).
+- **Pas** de timecodes, **pas** d'URL de meme dans le pack.
 
 ## 4. Fichiers clés locaux
 | Fichier | Rôle |
