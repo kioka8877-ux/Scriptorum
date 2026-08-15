@@ -3,7 +3,7 @@
 > Point de reprise pour un nouveau chat vierge. Date : 2026-08-15.
 > Mission active : analyser le démon viral @zdak pour définir la doctrine du mode meme PERTURABO, via Scriptorum (GitHub Actions).
 
-## 0. OÙ ON EST — les 2 rapports sont TERMINÉS ✅
+## 0. OÙ ON EST — rapports TERMINÉS ✅ + mode meme IMPLÉMENTÉ ✅ (test réel à faire)
 
 ### Rapport 1 — Analyse du démon (Kimi K3, fait)
 `answers/question-2026-08-15-01.md` : identité @zdak, métriques (2.42M abonnés, 9.56 Mds vues, ~2 Shorts/jour), signature "sad Twitter post x meme Paul", 5 axes de pack meme (axe "born to be / forced to be" pré-validé par le top commentaire à 2651 likes).
@@ -25,7 +25,7 @@ Règles d'assemblage : 5-7s max · tout visible dès frame 1 · une seule bascul
 
 ### Le projet
 - **PERTURABO/MONDES_FORGES/CLIPPING** : forge de clips viraux (YouTube Shorts/TikTok/Insta). Cloné localement dans `/tmp/opencode/PERTURABO` (sparse MONDES_FORGES/CLIPPING).
-- Profil actif : **logo**, sous-mode à concevoir : **meme** (en plus de informatif). Siège en cours : `siege_20260810_205150`, campagne **NBA_WESTBROOK** (backlash tribute Westbrook).
+- Profil actif : **logo**, sous-modes : **informatif** + **humour** + **meme** (implémenté, poussé). Siège en cours : `siege_20260810_205150`, campagne **NBA_WESTBROOK** (backlash tribute Westbrook).
 - **Scriptorum** : repo GitHub `kioka8877-ux/Scriptorum` — workflow qui lit une question dans `questions/`, appelle un LLM, commit la réponse dans `answers/` (.md + .json).
 
 ### Le démon analysé
@@ -64,6 +64,8 @@ Stockées dans `/tmp/opencode/.env` (perms 600) et en **secrets GitHub** du repo
 
 ## 3. Ce que le NOUVEAU chat doit faire (ordre exact)
 
+> ⚠️ **MISE À JOUR 2026-08-15 (16h40)** : le mode meme est **IMPLÉMENTÉ et POUSSÉ** dans PERTURABO (commit `1081ae7`). La prochaine étape est le **test réel** (siège meme) puis l'itération. Voir section 3bis.
+
 ### Étape 1 — Récupérer le résultat de l'analyse visuelle
 ```bash
 cd /tmp/opencode/Scriptorum
@@ -78,12 +80,28 @@ Lire `answers/question-2026-08-15-02.md`. Si le fichier n'existe pas :
 - Si ça persiste : passer le secret `LLM_MODEL` à un autre modèle gratuit vision : `google/gemma-4-26b-a4b-it:free` ou `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`.
 - **ATTENTION** : OpenRouter exige un solde ≥ $1 pour `video_url`. Solution gratuite = frames en images (`IMG:`), PAS `VIDEO:`.
 
-### Étape 3 — Consolider la doctrine du mode meme ⬅️ PROCHAINE ÉTAPE
-Les 2 analyses sont terminées. La doctrine visuelle est définie (section 0). Il reste à l'implémenter dans le repo PERTURABO :
-- `MONDES_FORGES/CLIPPING/PROFILES/logo/manifest.json` : ajouter `sub_mode: "meme"`.
-- `MONDES_FORGES/CLIPPING/CONTRACTS/production_pack_schema_logo.json` : étendre l'enum `sub_mode`.
-- Nouveau guide : `MONDES_FORGES/CLIPPING/GUIDE_UTILISATION/04_MODE_MEME.md` (modèle : `01_MODE_LOGO_INFORMATIF.md`) — intégrer les 6 couches + règles d'assemblage du rapport 2.
-- Étendre les frégates : `F00_CAPTEURS/CODEBASE/capteurs.py` (scan YouTube virality par mot-clé SANS téléchargement), `F02_TYRANT_CAMP/CODEBASE/anglesmith.py`, `F04_COPYWRITER/CODEBASE/copywriter.py`, `F05_PACKAGER/CODEBASE/packager.py` (pack = textes + emotion + durée + règles de montage). **F01 non utilisé en mode meme.**
+### 3bis. Étape 3 révisée — mode meme IMPLÉMENTÉ, reste le TEST RÉEL ⭐
+
+**Le code du mode meme est poussé** (`PERTURABO` commit `1081ae7`, branche main). Fichiers :
+- `PROFILES/logo/manifest.json` : `sub_modes: [informatif, humour, meme]` + `meme_guide`.
+- `PROFILES/logo/CONTRACTS/production_pack_schema_logo.json` : `sub_mode: meme`, bloc `meme_source` (keyword/virality_scan/montage_guide_ref/duration_range_sec), champs video `tweet_text`/`reaction_text`/`emotion`/`duration_sec_range`.
+- `GUIDE_UTILISATION/04_MODE_MEME.md` (nouveau) : doctrine montage 6 couches = CONTRAT pour OMNIS_WATCH.
+- `F00_CAPTEURS/CODEBASE/capteurs.py` : `--scan-meme --keyword <kw> [--sources ...]` (YouTube/Trends/RSS/Reddit/Suggest, 0 clip téléchargé) + `libs/f00_reddit_ingestor.py` (nouveau).
+- `F02_TYRANT_CAMP/CODEBASE/anglesmith.py` + `libs/angle_forger.py` : `--sub-mode meme` → 5 angles avec `emotion` (anti-spam 2 max vérifié au --finalize), `duration_sec_range`, `meme_hook` A→B.
+- `F04_COPYWRITER/CODEBASE/copywriter.py` + `context_builder.py` : mode meme → `title` (≤6 mots si nécessaire), `tweet_text` (≤3 lignes), `reaction_text` (≤4 mots), `emotion`. Note : au rebase, le bloc `humour_spin` (ajouté entre-temps sur main) a été conservé.
+- `F05_PACKAGER/CODEBASE/packager.py` : `--assemble --sub-mode meme` → pack avec `meme_source.montage_guide_ref` + `virality_scan` + durée.
+
+**Testé localement** : scan-meme OK (RSS/Suggest réels), anglesmith 5 émotions distinctes 5-7s, packager assemble+finalize 5 vidéos schéma validé. Artefacts de test gitignorés ; `keyword.txt` de test déplacé en backup `/tmp/opencode/keyword_test_backup.txt`.
+
+**Prochain test réel (siège meme)** :
+1. `F00 --scan-meme --keyword <kw>` → valider la Gate 1 (pas de clip téléchargé).
+2. `anglesmith --auto --n-angles 5 --sub-mode meme --finalize` → Gate 2.
+3. `copywriter --setup-context --generate --ordonnance --finalize` (×5 angles, `--sub-mode meme`) → Gate 3.
+4. `packager --assemble --sub-mode meme --finalize` → Gate 4, copier pack dans `EXPORT/`.
+5. OMNIS_WATCH monte via `04_MODE_MEME.md`.
+
+**Questions ouvertes à régler** :
+- La clé YouTube (`CONTRACTS/youtube_secrets.json`) manque localement → le signal `signal_vues_youtube` est `no_youtube_key`. Où est-elle ? (stockée dans `/tmp/opencode/.env` → `YOUTUBE_API_KEY`).
 
 ### Rappels de conception (décidés avec le user) — WORKFLOW MODE MEME RÉVISÉ ⭐
 - **Pack = aspects textuels + référence aux règles de montage.** Le pack référence le guide `04_MODE_MEME.md` (réponse user : "Référence au guide 04_MODE_MEME.md" — PAS de bloc JSON dupliqué). OMNIS_WATCH charge le guide pour le rendu.
@@ -108,3 +126,7 @@ Les 2 analyses sont terminées. La doctrine visuelle est définie (section 0). I
 | `/tmp/opencode/demo.mp4` | vidéo du démon (5.6s, issue de la release) |
 | `/tmp/opencode/Scriptorum/answers/question-2026-08-15-01.md` | rapport Kimi K3 #1 |
 | `/tmp/opencode/Scriptorum/answers/question-2026-08-15-02.md` | **rapport attendu** (analyse visuelle) |
+| `/tmp/opencode/PERTURABO/MONDES_FORGES/CLIPPING/GUIDE_UTILISATION/04_MODE_MEME.md` | guide mode meme (doctrine 6 couches) — dans le repo PERTURABO (commit `1081ae7`) |
+| `/tmp/opencode/PERTURABO/MONDES_FORGES/CLIPPING/F00_CAPTEURS/CODEBASE/libs/f00_reddit_ingestor.py` | ingestor Reddit (mode meme) |
+| `/tmp/opencode/keyword_test_backup.txt` | backup du keyword.txt de test (`westbrook`) |
+| `/tmp/opencode/backup_answers/` | réponses écrasées conservées (déjà noté) |
