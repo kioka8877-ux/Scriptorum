@@ -34,15 +34,23 @@ def log(msg: str) -> None:
 
 
 def read_question(path: Path) -> dict:
-    """Extrait la question depuis un fichier Markdown."""
+    """Extrait la question depuis un fichier Markdown.
+
+    La question transmise au modèle est l'intégralité du fichier, à l'exception
+    du préfixe 'Question :' de la première ligne (s'il existe). Cela préserve
+    les données embarquées (blocs JSON, tableaux, contexte) au-delà de la
+    première ligne.
+    """
     content = path.read_text(encoding="utf-8").strip()
     question = content
 
-    for line in content.splitlines():
-        stripped = line.strip().lower()
-        if stripped.startswith(("question", "q :", "q:", "question :", "question:")):
-            question = line.split(":", 1)[-1].strip() if ":" in line else content
-            break
+    lines = content.splitlines()
+    if lines:
+        first = lines[0]
+        stripped = first.strip().lower()
+        if stripped.startswith(("question", "q :", "q:", "question :", "question:")) and ":" in first:
+            rest = "\n".join(lines[1:]).strip()
+            question = rest if rest else first.split(":", 1)[-1].strip()
 
     date_match = re.search(r"(\d{4}-\d{2}-\d{2})", path.name)
 
