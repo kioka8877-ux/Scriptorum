@@ -3,6 +3,24 @@
 > Point de reprise pour un nouveau chat vierge. Date : 2026-08-15.
 > Mission active : analyser le démon viral @zdak pour définir la doctrine du mode meme PERTURABO, via Scriptorum (GitHub Actions).
 
+## 0. OÙ ON EST — les 2 rapports sont TERMINÉS ✅
+
+### Rapport 1 — Analyse du démon (Kimi K3, fait)
+`answers/question-2026-08-15-01.md` : identité @zdak, métriques (2.42M abonnés, 9.56 Mds vues, ~2 Shorts/jour), signature "sad Twitter post x meme Paul", 5 axes de pack meme (axe "born to be / forced to be" pré-validé par le top commentaire à 2651 likes).
+
+### Rapport 2 — Dissection visuelle de la vidéo (Kimi K3, fait) ⭐
+`answers/question-2026-08-15-02.md` : analyse frame par frame de la vidéo cible. **Doctrine du mode meme en 6 couches** :
+1. Setup / faux post (quart haut, fixe, max 1.5 ligne, mots-clés colorés vert/rouge)
+2. Preuve visuelle (card fixe, lumineuse dès f_01)
+3. Label narratif `[sujet] at [A]:` → `[sujet] at [B]:` (un seul mot change, ~50% par version)
+4. Réacteur émotionnel (2 clips contraste extrême d'une même œuvre pop-culture pour méta-blague)
+5. Transition-pivot (flash/cut sec + impact sonore à 50-55% du runtime)
+6. Watermark (semi-transparent, bas-gauche)
+
+Règles d'assemblage : 5-7s max · tout visible dès frame 1 · une seule bascule · muet-compréhensible · un seul objet en mouvement · boucle invisible en bonus.
+
+**Le rapport complet est déjà transcrit dans le chat précédent** (dissection + forces + faiblesses + doctrine + conclusion).
+
 ## 1. Où on en est (état exact)
 
 ### Le projet
@@ -15,12 +33,14 @@
 - Vidéo cible : "This Teacher MIGHT Be Picasso 🫪🎨" — 6.8M vues en 24h, format "sad Twitter post x meme Paul (All Quiet)".
 - Rapport Kimi K3 #1 terminé (identité, métriques, signature, angles meme) : `answers/question-2026-08-15-01.md`.
 
-### Ce qui est EN COURS
-- **Analyse de la construction visuelle** (dissection des couches : titre/haut, réaction, texte) pour définir ce que le mode meme DOIT contenir pour l'audience US jeune.
-- Question : `questions/question-2026-08-15-02.md` (frames en `IMG:`).
-- Frames extraites : `frames/f_01.jpg` → `f_11.jpg` (11 frames, ~0.5s entre chaque, vidéo 5.6s) — déjà poussées sur GitHub.
-- Dernier run workflow : **https://github.com/kioka8877-ux/Scriptorum/actions/runs/31892765496**
-- **Réponse attendue** : `answers/question-2026-08-15-02.md` (si le run réussit).
+### Ce qui est TERMINÉ
+- **Rapport Kimi K3 #1** (démon complet) : `answers/question-2026-08-15-01.md`.
+- **Rapport Kimi K3 #2** (dissection visuelle + doctrine 6 couches) : `answers/question-2026-08-15-02.md`.
+- Question #2 : `questions/question-2026-08-15-02.md` (frames en `IMG:`).
+- Frames extraites : `frames/f_01.jpg` → `f_11.jpg` (11 frames, ~0.5s entre chaque, vidéo 5.6s) — poussées sur GitHub.
+- Note de continuation : `CONTINUATION.md` (ce fichier).
+- Dernier run workflow (SUCCÈS) : **https://github.com/kioka8877-ux/Scriptorum/actions/runs/31894023578**
+- Réponse livrée : `answers/question-2026-08-15-02.md`.
 
 ## 2. Configuration technique (déjà en place — NE PAS recasser)
 
@@ -58,11 +78,11 @@ Lire `answers/question-2026-08-15-02.md`. Si le fichier n'existe pas :
 - Si ça persiste : passer le secret `LLM_MODEL` à un autre modèle gratuit vision : `google/gemma-4-26b-a4b-it:free` ou `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free`.
 - **ATTENTION** : OpenRouter exige un solde ≥ $1 pour `video_url`. Solution gratuite = frames en images (`IMG:`), PAS `VIDEO:`.
 
-### Étape 3 — Consolider la doctrine du mode meme
-À partir du rapport visuel (#2) + rapport Kimi K3 (#1), rédiger dans le repo PERTURABO :
+### Étape 3 — Consolider la doctrine du mode meme ⬅️ PROCHAINE ÉTAPE
+Les 2 analyses sont terminées. La doctrine visuelle est définie (section 0). Il reste à l'implémenter dans le repo PERTURABO :
 - `MONDES_FORGES/CLIPPING/PROFILES/logo/manifest.json` : ajouter `sub_mode: "meme"`.
 - `MONDES_FORGES/CLIPPING/CONTRACTS/production_pack_schema_logo.json` : étendre l'enum `sub_mode`.
-- Nouveau guide : `MONDES_FORGES/CLIPPING/GUIDE_UTILISATION/04_MODE_MEME.md` (modèle : `01_MODE_LOGO_INFORMATIF.md`).
+- Nouveau guide : `MONDES_FORGES/CLIPPING/GUIDE_UTILISATION/04_MODE_MEME.md` (modèle : `01_MODE_LOGO_INFORMATIF.md`) — intégrer les 6 couches + règles d'assemblage du rapport 2.
 - Étendre les frégates : `F00_CAPTEURS/CODEBASE/capteurs.py` (entrée durée opérateur), `F02_TYRANT_CAMP/CODEBASE/anglesmith.py`, `F04_COPYWRITER/CODEBASE/copywriter.py`, `F05_PACKAGER/CODEBASE/packager.py`.
 
 ### Rappels de conception (décidés avec le user)
